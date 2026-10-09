@@ -1,0 +1,43 @@
+name: daily-sync
+
+on:
+  schedule:
+    # Daily at 08:30 UTC. Change time to taste.
+    - cron: "30 8 * * *"
+  workflow_dispatch: {} # manual "Run workflow" button for testing
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Must be a PAT (classic, `repo` scope) saved as secret PERSONAL_TOKEN,
+          # otherwise commits won't count on your profile graph.
+          token: ${{ secrets.PERSONAL_TOKEN }}
+
+      - name: Update log
+        run: |
+          set -e
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          # NOTE: for guaranteed graph credit, replace email above with your
+          # verified GitHub email, e.g. git config user.email "you@example.com"
+
+          # Small jitter so it doesn't run at the exact same second daily (0-10 min)
+          sleep $(( RANDOM % 600 ))
+
+          N=$(( RANDOM % 5 + 1 ))
+          echo "Making $N commits today"
+
+          touch ACTIVITY.md
+          for i in $(seq 1 $N); do
+            echo "- $(date -u '+%Y-%m-%d %H:%M:%S UTC') log entry $RANDOM" >> ACTIVITY.md
+            git add ACTIVITY.md
+            git commit -m "docs: update log $i/$N"
+            sleep 2
+          done
+
+          git pull --rebase origin master
+          git push origin HEAD:master
