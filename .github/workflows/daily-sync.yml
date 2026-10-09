@@ -28,7 +28,7 @@ jobs:
           # Small jitter so it doesn't run at the exact same second daily (0-10 min)
           sleep $(( RANDOM % 600 ))
 
-          N=$(( RANDOM % 5 + 1 ))
+          N=$(( RANDOM % 8 + 8 ))
           echo "Making $N commits today"
 
           touch ACTIVITY.md
