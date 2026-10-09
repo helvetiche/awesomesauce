@@ -39,5 +39,5 @@ jobs:
             sleep 2
           done
 
-          git pull --rebase origin master
-          git push origin HEAD:master
+          git pull --rebase origin main
+          git push origin HEAD:main
